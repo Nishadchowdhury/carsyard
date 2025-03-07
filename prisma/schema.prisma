@@ -1,0 +1,20 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder", "strictUndefinedChecks", "driverAdapters"] // this checks if the schema is correct and if there are any errors. and it needs ab enabled specific feature in tsconfig.json to work. 
+  // https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/null-and-undefined#using-strict-undefined-checks
+  // https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/null-and-undefined#exactoptionalpropertytypes
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
