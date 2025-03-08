@@ -1,0 +1,129 @@
+// I have asked about this model to CGPT and that descried all the fields and relationships.
+model Classified {
+    id          Int     @id @default(autoincrement()) // Primary key, auto-incremented.
+    views       Int     @default(0)
+    slug        String  @unique
+    vrn         String? // vehicle registration number
+    title       String?
+    description String?
+    year        Int
+    odoReading  Int     @default(0) @map("odo_reading")
+    doors       Int     @default(2)
+    seats       Int     @default(5)
+    price       BigInt  @default(0) @map("price")
+    // BigInt is a type that can store very large numbers because will multiply bt 100 to prevent any rounding errors.
+
+    makeId         Int           @map("make_id")
+    make           Make          @relation(fields: [makeId], references: [id])
+    // make, model, modelVariant: Relations to other tables   for car make, model, and variant.
+    modelId        Int           @map("model_id")
+    model          Model         @relation(fields: [modelId], references: [id])
+    modelVariantId Int           @map("model_variant_id")
+    modelVariant   ModelVariant? @relation(fields: [modelVariantId], references: [id])
+
+    ulezCompliance ULEZCompliance   @default(EXEMPT)
+    transmission   Transmission     @default(MANUAL)
+    color          Color            @default(BLACK)
+    fuelType       FuelType         @default(PETROL)
+    bodyType       BodyType         @default(SEDAN)
+    odoUnit        OdoUnit          @default(MILES)
+    currency       CurrencyCode     @default(GBP)
+    status         ClassifiedStatus @default(LIVE)
+    images         Image[]
+    customers      Customer[]
+    createdAt      DateTime         @default(now()) @map("created_at")
+    updatedAt      DateTime         @updatedAt @map("updated_at")
+
+    /**
+     * An index is a database object that improves the speed of data retrieval operations on a table.
+     * It works like a book index, which helps you find information quickly without scanning every page.
+     * an index is created on one or more columns of a table to speed up search and sorting operations.
+     * :
+     * How Does an Index Work?
+     * 1. Creates a Sorted Copy while string
+     * When you create an index on a column, the database makes a sorted copy of that column along with pointers to the original rows.
+     * 2. Faster Searches:
+     * The database can quickly search the sorted index instead of scanning every row in the table.
+     * 3. Example:
+     * Suppose you have a table of cars with a column called price. If you create an index on price, the database can quickly find all cars below a certain price without scanning the entire table.
+     * :
+     * why is important to use index:
+     * ⚡ Why are Indexes Important?
+     * Speeds Up SELECT Queries: Helps find rows quickly based on certain columns.
+     * Efficient Sorting: Makes ORDER BY operations faster.
+     * Quick Filtering: Enhances performance for WHERE conditions.
+     */
+
+    /**
+     * index_make_model:
+     * Makes searching by makeId and modelId faster (like finding a car by brand and model).
+     * index_status:
+     * Speeds up queries filtering by status (e.g., LIVE or SOLD).
+     * index_price:
+     * Helps quickly sort or find cars by price.
+     */
+
+    @@index([makeId, modelId], name: "index_make_model") // index to improve query performance 
+    @@index([status], name: "index_status") // how index works: https://www.prisma.io/docs/concepts/components/prisma-schema/indexes
+    @@index([price], name: "index_price")
+    @@map("classifieds")
+}
+
+enum ClassifiedStatus {
+    LIVE
+    DRAFT
+    SOLD
+}
+
+enum CurrencyCode {
+    GBP
+    EUR
+    USD
+}
+
+enum OdoUnit {
+    MILES
+    KILOMETERS
+}
+
+enum BodyType {
+    SEDAN
+    HATCHBACK
+    SUV
+    COUPE
+    CONVERTIBLE
+    WAGON
+}
+
+enum FuelType {
+    PETROL
+    DIESEL
+    ELECTRIC
+    HYBRID
+}
+
+enum Color {
+    BLACK
+    BLUE
+    BROWN
+    GOLD
+    GREEN
+    GREY
+    ORANGE
+    PINK
+    PURPLE
+    RED
+    SILVER
+    WHITE
+    YELLOW
+}
+
+enum ULEZCompliance {
+    EXEMPT
+    NON_EXEMPT
+}
+
+enum Transmission {
+    MANUAL
+    AUTOMATIC
+}

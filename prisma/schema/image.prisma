@@ -1,0 +1,39 @@
+model Image {
+    id           Int        @id @default(autoincrement())
+    alt          String
+    src          String
+    classifiedId Int        @map("classified_id") // will send the id from front end and the relation will be worked.
+    classified   Classified @relation(fields: [classifiedId], references: [id], onDelete: Cascade) //classified stores the whole row from the Classified table linked by classifiedId. It allows you to access related data directly without making additional queries.
+    /**
+     * 1. classified Classified — What Does This Mean?
+     * classified (first part): The name of the field in your model that represents this relation. You’ll use this in queries.
+     * Classified (second part): The name of the related model (table) in your database schema.
+     * In simple words:
+     * It means this model has a connection to the Classified table and you’ll access it using the field classified.
+     */
+
+    /**
+     * 2. @relation(fields: [classifiedId], references: [id]) — What Does This Do?
+     * fields: [classifiedId]:
+     * Specifies the foreign key in the current/this table that stores the ID of the related Classified table.
+     * references: [id]:
+     * Specifies that the classifiedId points to the id column in the Classified table.
+     * In simple words:
+     * There is a column called classifiedId in the current/this table.
+     * This column stores the ID of a row from the Classified table.
+     * It creates a foreign key constraint linking these tables.
+     */
+
+    /**
+     * 3. onDelete: Cascade — What Does This Do?
+     * onDelete: Cascade means if a row in the Classified table is deleted, all related rows in the current table will automatically be deleted too.
+     * Example:
+     * If you delete a car listing from the Classified table, all related images, offers, or other linked data will be deleted as well.
+     * This helps keep the database clean and prevents orphaned records.
+     */
+
+    blurHash String
+    isMain   Boolean @default(false) @map("is_main")
+
+    @@map("images")
+}

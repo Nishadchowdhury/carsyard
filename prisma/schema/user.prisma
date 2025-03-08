@@ -1,0 +1,11 @@
+model User {
+    id             String    @id @default(cuid())
+    email          String    @unique
+    name           String?
+    hashedPassword String    @map("hashed_password") // @map is renaming this field in the db as hashed_password but in client as the key
+    sessions       Session[] // this is a relation to the Session model (one to many)
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+
+    @@map("users") // @map is renaming the table in the db as users
+}
