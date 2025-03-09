@@ -1,2 +1,18 @@
 1. separating the models in many files // 22:17
-2. 
+2. all the schemas are done at 37:00
+3. seeding:- 🌱 What is Seeding in Databases?
+    :- for seeding we have to create a new prisma client separately https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
+    :- we have to put a script to package.json file to run 
+    "prisma": {
+        "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed/seed.ts"
+    } // ask GPT why this is best over the script by prisma doc. [-r:equire the module before running the script. , tsconfig-paths/register: this will help working with this imports @/,  --compiler-options {"module":"CommonJS"}:  ]
+
+:- Seeding in the context of databases means inserting initial or sample data into your tables.
+It’s like planting seeds in a garden to grow data that you can use for development, testing, or even production.
+
+For example, if you have tables for car makes, models, and variants, you might seed them with data like this:
+* Makes: Toyota, Honda, Ford
+* Models: Corolla, Civic, Mustang
+* Variants: LE, SE, GT
+This helps to quickly populate the database with essential data, so you don’t have to add it manually every time you reset or migrate your database.
+
