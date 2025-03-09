@@ -32,6 +32,6 @@
     "typescript": "^5"
   },
   "prisma": {
-    "seed": "bunx ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed/seed.ts"
   }
 }
