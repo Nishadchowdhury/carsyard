@@ -35,6 +35,6 @@ model ModelVariant {
     createdAt   DateTime     @default(now()) @map("created_at")
     updatedAt   DateTime     @updatedAt @map("updated_at")
 
-    @@unique([modelId, name])
+    @@unique([modelId, name]) // unique constraint is used to identify this model variant uniquely without using the id but the combination of modelId and name.  
     @@map("model_variants")
 }

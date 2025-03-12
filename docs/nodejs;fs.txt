@@ -1,0 +1,26 @@
+
+
+1. just ask Cgpt this prompt
+i ve no Idea about node js fs 
+
+ and developer wrote this code
+
+
+teach me fs and its basic and how this example related with its basic?
+import type { PrismaClient, Prisma } from "@prisma/client";
+import { parse } from "csv";
+import fs from "node:fs";
+
+export async function seedTaxonomy(prisma: PrismaClient) {
+    const rows = await new Promise((resolve, reject) => {
+        const eachRow: any[] = [];
+
+        fs.createReadStream("taxonomy.csv").pipe(parse({ columns: true })).on("data", async (row: { [index: string]: string }) => {
+            console.log({row});
+        })
+
+        resolve(true)
+
+    })
+}
+
