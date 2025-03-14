@@ -26,7 +26,7 @@ type MakeModelMap = {
     }
 }
 
-const BATCH_SIZE = 20;
+const BATCH_SIZE = 100;
 
 export async function seedTaxonomy(prisma: PrismaClient) {
     const rows = await new Promise<Row[]>((resolve, reject) => { // in promise, need to pass the type of the data that we are returning
@@ -55,7 +55,9 @@ export async function seedTaxonomy(prisma: PrismaClient) {
             });
     })
 
-    // console.log(rows);
+
+
+
 
     // lets inert into the database through a for loop.
     const result: MakeModelMap = {}
@@ -65,7 +67,6 @@ export async function seedTaxonomy(prisma: PrismaClient) {
         if (!result[row.make]) { // checking is there anything as toyota: {} 
             result[row.make] = {} // if not like toyota: {} then create toyota: {make: toyota}
         }
-
         if (!result[row.make][row.model]) {
             /* 
             First Check:
@@ -88,7 +89,6 @@ export async function seedTaxonomy(prisma: PrismaClient) {
         }
 
     }
-
 
 
     // return console.log(Object.entries(result["AC"]["MAMBA"].variants));
@@ -125,7 +125,6 @@ export async function seedTaxonomy(prisma: PrismaClient) {
 
         })
 
-    // 
     const makes = await Promise.all(makePromises); // there will be multiple promises, so we need to wait for all of them to resolve.
     console.log(`seeded ${makes.length} makes 🌱`);
 
@@ -191,8 +190,9 @@ export async function seedTaxonomy(prisma: PrismaClient) {
         }
     }
 
-    // This function is used to insert data in batches.
 
+
+    // This function is used to insert data in batches.
     async function insertInBatches<TUpsertArgs>( // this is a generic function TUpsertArgs a generic type parameter.
         items: TUpsertArgs[],
         BATCH_SIZE: number, // amount of items to insert in one go 
@@ -203,7 +203,7 @@ export async function seedTaxonomy(prisma: PrismaClient) {
             await insertFunction(batch); // then we process the batch 
         }
     }
-
+    // calling this function
     await insertInBatches<Prisma.Prisma__ModelClient<unknown, unknown>>(
         modelPromises,
         BATCH_SIZE,
@@ -229,7 +229,7 @@ export async function seedTaxonomy(prisma: PrismaClient) {
             } else {
 
                 // if (Object.entries(result[make.name][model.name].variants,)) {
-                for (const [variant, year_range] of Object.entries(
+                for (const [variant, year_range] of Object.entries( // Each entry in the array is a [key, value] pair. key= variantName, value = {yearStart: number, yearEnd: number} 
                     result[make.name][model.name].variants,
                 )) { // checking 'mane.name' exists in result object and '[model.name].variants' exists in that particular result object and the variant is not undefined.
                     variantPromises.push(prisma.modelVariant.upsert({
