@@ -2,8 +2,8 @@
 model Classified {
     id          Int     @id @default(autoincrement()) // Primary key, auto-incremented.
     views       Int     @default(0)
-    slug        String  @unique
-    vrn         String? // vehicle registration number
+    slug        String  @unique // slug means a short label for something, for example, a URL.
+    vrm         String? // vehicle registration mark
     title       String?
     description String?
     year        Int
@@ -18,7 +18,7 @@ model Classified {
     // make, model, modelVariant: Relations to other tables   for car make, model, and variant.
     modelId        Int           @map("model_id")
     model          Model         @relation(fields: [modelId], references: [id])
-    modelVariantId Int           @map("model_variant_id")
+    modelVariantId Int?           @map("model_variant_id")
     modelVariant   ModelVariant? @relation(fields: [modelVariantId], references: [id])
 
     ulezCompliance ULEZCompliance   @default(EXEMPT)
