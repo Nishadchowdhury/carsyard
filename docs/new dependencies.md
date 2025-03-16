@@ -34,6 +34,12 @@ console.log(faker.location.city()); // "Marseille"
 // Replaces spaces with hyphens ("Corolla XLE" → "corolla-xle").
 // Removes special characters ("$Toyota@123" → "toyota123").
 
-
 ------------------------------------thumbhash: this takes an image file converts into small string not base64 .
 ------------------------------------unlazy: this used to convert thumbhash's returns into base64 image.
+
+------------------------------------nuqs: Type-safe search params state manager for React frameworks. Like useState, but stored in the URL query string.
+------------------------------------nextjs-toploader:A Next.js Top Loading Bar component made using nprogress, works with Next.js 14 and React.
+
+
+------------------------------------html-react-parser 
+------------------------------------sanitize-html

@@ -5,7 +5,7 @@ export default function Home() {
     <div>
 
       <h1 className="text-2xl font-bold ">
-Hello world
+        Hello world
       </h1>
 
 

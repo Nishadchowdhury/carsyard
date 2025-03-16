@@ -15,7 +15,7 @@ prisma.$use(async (params, next) => {
     const result = await next(params);  // Execute the query
     const after = Date.now();  // Record end time
 
-    console.log(`Query ${params.model}.${params.action} took ${after - before}ms`);
+    // console.log(`Query ${params.model}.${params.action} took ${after - before}ms`);
 
     return result;  // Return the query result
 });
