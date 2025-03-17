@@ -1,0 +1,112 @@
+
+------------------------------------html-react-parser: is a JavaScript library that converts HTML strings into React elements.
+
+import parse from "html-react-parser";
+
+const htmlString = "<h1>Hello, <span style='color: red'>World!</span></h1>";
+
+export default function App() {
+return <div>{parse(htmlString)}</div>;
+}
+🔹 This will render:
+<h1>Hello, <span style="color: red">World!</span></h1>
+
+Why Use html-react-parser?
+✅ Convert raw HTML from APIs or databases into React components.
+✅ Safer than dangerouslySetInnerHTML (prevents XSS when used properly).
+✅ Modify HTML before rendering (using transform functions).
+
+Advanced Usage
+1️⃣ Transforming Elements
+You can modify elements before rendering:
+import parse, { domToReact } from "html-react-parser";
+
+const htmlString = "<div><p>Hello</p><a href='https://example.com'>Click</a></div>";
+
+const transform = (node: any) => {
+  if (node.name === "a") {
+    return <a href={node.attribs.href} target="_blank" rel="noopener noreferrer">{domToReact(node.children)}</a>;
+  }
+};
+
+export default function App() {
+  return <div>{parse(htmlString, { replace: transform })}</div>;
+}
+✔️ This ensures all <a> links open in a new tab safely.
+
+2️⃣ Ignoring Scripts for Security
+By default, <script> tags won't be parsed, reducing XSS risks:
+
+const html = "<script>alert('Hacked!')</script><p>Safe Content</p>";
+
+export default function App() {
+  return <div>{parse(html)}</div>; // <p>Safe Content</p> (script ignored)
+}
+
+
+
+
+
+
+------------------------------------sanitize-html: sanitize-html is a JavaScript library that removes unwanted or potentially dangerous HTML elements and attributes to prevent XSS attacks and ensure safe rendering of HTML content.
+
+Basic Usage
+
+import sanitizeHtml from "sanitize-html";
+
+const dirtyHtml = `<script>alert("Hacked!")</script><h1>Hello <span style="color:red">World</span></h1>`;
+
+const cleanHtml = sanitizeHtml(dirtyHtml);
+
+console.log(cleanHtml);  
+// Output: "<h1>Hello <span style="color:red">World</span></h1>" (Script removed)
+
+✔️ The <script> tag is removed to prevent malicious code execution.
+
+Why Use sanitize-html?
+✅ Prevents XSS attacks by removing <script> and dangerous attributes.
+✅ Allows safe HTML rendering from user-generated content (e.g., from a CMS or API).
+✅ Customizable — control which tags, attributes, and styles are allowed.
+
+Customizing Allowed Elements & Attributes
+
+const cleanHtml = sanitizeHtml(dirtyHtml, {
+  allowedTags: ["b", "i", "em", "strong", "p", "span"],
+  allowedAttributes: { span: ["style"] },
+});
+
+console.log(cleanHtml);  
+// Output: "<p>Hello <span style="color:red">World</span></p>" (Only allowed tags remain)
+
+✔️ Only <b>, <i>, <em>, <strong>, <p>, and <span> are allowed.
+✔️ Only style is allowed on <span>, all other attributes are removed.
+
+Removing All Tags (Plain Text Output)
+
+const plainText = sanitizeHtml(dirtyHtml, { allowedTags: [] });
+
+console.log(plainText);  
+// Output: "Hello World" (All HTML removed)
+
+✔️ Converts HTML into plain text by stripping all tags.
+
+Allowing Only Specific Styles
+const cleanHtml = sanitizeHtml(dirtyHtml, {
+  allowedTags: ["span"],
+  allowedAttributes: { span: ["style"] },
+  allowedStyles: {
+    "*": { color: [/^red$/] }, // Only allow red color
+  },
+});
+
+console.log(cleanHtml);
+// Output: "<span style="color:red">World</span>"
+
+
+✔️ Restricts inline styles to only allow "red" as a color.
+
+When to Use sanitize-html?
+Rendering user-generated content (e.g., comments, reviews, blog posts).
+Sanitizing API responses that return HTML.
+Preventing XSS attacks when handling HTML input from users.
+🚀 Use sanitize-html to ensure safe, clean HTML rendering in web applications!

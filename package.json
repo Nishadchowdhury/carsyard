@@ -14,11 +14,14 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.6",
     "@tinymce/tinymce-react": "^6.0.0",
+    "@upstash/ratelimit": "^2.0.5",
+    "@upstash/redis": "^1.34.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "csv": "^6.3.11",
     "framer-motion": "^12.5.0",
     "html-react-parser": "^5.2.2",
+    "ky": "^1.7.5",
     "lucide-react": "^0.479.0",
     "next": "15.2.1",
     "nextjs-toploader": "^3.7.15",
@@ -30,7 +33,9 @@
     "slugify": "^1.6.6",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
-    "unlazy": "^0.12.3"
+    "unlazy": "^0.12.3",
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

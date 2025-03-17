@@ -36,3 +36,7 @@ export enum MultiStepFormEnum {
     SELECT_DATE = 2,
     SUBMIT_DETAILS = 3,
 } 
+
+export interface Favorites {
+    ids: number[]
+}

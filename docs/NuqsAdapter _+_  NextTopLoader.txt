@@ -1,0 +1,25 @@
+NuqsAdapter is a context provider component from the nuqs library, 
+designed to integrate type-safe URL query string management into various React frameworks. 
+It enables synchronization between React state and URL search parameters, enhancing state management within applications.​
+
+NextTopLoader: nextjs-toploader is an npm package that provides a top-loading progress bar for Next.js applications, similar to the one seen in YouTube or Medium. It enhances user experience by visually indicating when a page is loading.
+
+Usage in Next.js App Router (app directory)
+Modify your layout.tsx or layout.js:
+
+import NextTopLoader from 'nextjs-toploader';
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <NextTopLoader
+          color="#ff5733" // Customize the color
+          height={3}       // Thickness of the loader
+          showSpinner={false} // Hide spinner
+        />
+        {children}
+      </body>
+    </html>
+  );
+}

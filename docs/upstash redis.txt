@@ -1,0 +1,64 @@
+Upstash:- Upstash provides a serverless Redis with a dedicated API. Here’s how to integrate it:
+
+✅ Installation
+✅ Environment variable setup (UPSTASH_REDIS_REST_URL & UPSTASH_REDIS_REST_TOKEN)
+✅ Creating a Redis client (Redis.fromEnv())
+✅ Using Redis in API routes (app/api/route.ts)
+✅ Using Redis in Server Components
+
+This should give you a solid starting point. But if you want to go deeper, let me know! I can guide you on:
+
+Caching strategies (when to use set(), get(), del())
+Rate limiting with Upstash
+Using Redis in edge functions for super-fast data fetching
+Storing complex data like arrays & objects
+
+
+
+2️⃣ Configure Upstash Redis
+Get your Upstash Redis URL and token from Upstash Dashboard.
+Then, add them to your .env.local file:
+UPSTASH_REDIS_REST_URL="https://your-upstash-url"
+UPSTASH_REDIS_REST_TOKEN="your-upstash-token"
+
+3️⃣ Create a Redis Client in /lib/redisStore.ts
+Create a new lib/upstash.ts file to initialize Upstash Redis.
+
+import { Redis } from "@upstash/redis";
+
+export const redis = Redis.fromEnv();
+
+
+✅ Using Redis in API Routes
+Now, use the exported redis in an API route.
+import { NextResponse } from "next/server";
+import { redis } from "@/lib/upstash";
+
+export async function GET() {
+  try {
+    const data = await redis.get("message");
+
+    if (data) {
+      return NextResponse.json({ message: "Cache hit", data });
+    }
+
+    await redis.set("message", "Hello, Nishad!", { ex: 60 });
+
+    return NextResponse.json({ message: "Cache miss", data: "Hello, Nishad!" });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch from Redis" }, { status: 500 });
+  }
+}
+
+
+✅ Using Redis in server Components
+import { redis } from "@/lib/upstash";
+
+export default async function Page() {
+  const data = await redis.get("message");
+
+  return <h1>{data || "No message found"}</h1>;
+}
+
+
+@upstash/ratelimit

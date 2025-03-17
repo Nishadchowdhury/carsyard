@@ -1,0 +1,23 @@
+ky is a lightweight HTTP client for making fetch requests in JavaScript and TypeScript.
+
+Why Use ky Instead of fetch?
+ky simplifies API requests by providing: ✅ Automatic JSON parsing (no need for res.json()).
+✅ Shorter syntax (ky.get(url).json<T>() instead of fetch(url).then(res => res.json())).
+✅ Built-in request retries (in case of temporary network issues).
+✅ Automatic handling of query parameters and headers.
+✅ Better error handling (throws errors for non-2xx responses).
+
+Both ky and axios are great HTTP clients, but ky is often preferred for modern JavaScript/TypeScript projects due to its simplicity, smaller bundle size, and built-in features. Here's why a developer might choose ky over axios:
+
+🚀 Why Use ky Instead of axios?
+Feature:--------------	ky (✅ Simpler)	----------- axios (💪 Powerful)
+Bundle Size:--------------	✅ Tiny (~2KB)	----------- ❌ Large (~20KB)
+Automatic JSON Parsing:--------------	✅ Yes (always returns JSON)	----------- ❌ No (must call res.data)
+Error Handling:--------------	✅ Throws errors for non-2xx	----------- ⚠️ Needs manual try-catch
+Retries & Timeout:--------------	✅ Built-in (via ky options)	----------- ❌ Requires extra setup
+Request Cancellation:--------------	✅ Uses AbortController (native)	----------- ✅ Uses CancelToken (custom)
+Streams Support:--------------	✅ Yes (native fetch based)	----------- ❌ No native support
+Middleware Support:--------------	⚠️ Limited	----------- ✅ More flexible
+
+
+to catch the error must use try catch.
