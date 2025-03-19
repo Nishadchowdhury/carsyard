@@ -1,0 +1,72 @@
+🧐 Why Use env.mjs?
+
+1. Environment Variable Validation 🛡️
+Ensures that environment variables are correctly set and have the expected format.
+Prevents runtime errors caused by missing or incorrectly formatted environment variables.
+
+2. Security & Type Safety 🔐
+Clearly defines which variables should be available on the server and client.
+Avoids exposing sensitive server-side environment variables to the browser.
+
+3. Centralized Management 📌
+Instead of accessing process.env everywhere, you use env from env.mjs, making it easier to maintain.
+
+@t3-oss/env-nextjs → A library that simplifies Next.js environment variable handling.
+zod → A schema validation library to ensure variables meet expected types.
+
+Define Server & Client Variables
+export const env = createEnv({
+    server: {
+        UPSTASH_REDIS_REST_URL: z.string().url(),
+        UPSTASH_REDIS_REST_TOKEN: z.string(),
+        DATABASE_URL: z.string().url(),
+        NODE_ENV: z.enum(["development", "test", "production"]),
+    },
+})
+
+✅ What This Does?
+Defines server-side environment variables.
+Validates them using zod.
+
+
+Define Client-Side Variables
+    client: {
+        NEXT_PUBLIC_APP_URL: z.string(),
+    },
+
+
+
+📌 Why Separate Server & Client Variables?
+Server-side variables (e.g., DATABASE_URL, UPSTASH_REDIS_REST_TOKEN) should not be exposed to the browser for security reasons.
+Client-side variables must be prefixed with NEXT_PUBLIC_ in Next.js.
+
+
+
+Link with process.env
+
+    runtimeEnv: {
+        DATABASE_URL: process.env.DATABASE_URL,
+        NODE_ENV: process.env.NODE_ENV,
+        UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+        UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    }
+
+Maps the environment variables from .env to this configuration.
+If any required variable is missing, the app will throw an error instead of failing silently.
+
+
+
+
+
+🛠️ Example: Using env in Code
+Instead of doing:
+
+const dbUrl = process.env.DATABASE_URL;
+You can now safely use:
+
+import { env } from "../env.mjs";
+
+const dbUrl = env.DATABASE_URL; // Always validated ✅
+If DATABASE_URL is missing or invalid, the app will fail immediately.
+

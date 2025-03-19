@@ -5,3 +5,4 @@ export const imageSources = {
 } as const;
 
 
+export const CLASSIFIED_PER_PAGE = 9;

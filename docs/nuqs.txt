@@ -1,0 +1,103 @@
+
+import { useQueryState } from 'nuqs';
+The useQueryState hook from nuqs is used to sync state with the URL query parameters in a React app (usually in a Next.js project).
+It helps manage URL state in a clean, declarative way without needing useEffect, useRouter, or manual parsing.
+
+Why Use useQueryState?
+Keeps state in sync with the URL 📌 (great for pagination, filters, sorting, etc.).
+Persists state across page refreshes 🔄 (unlike useState which resets).
+Prevents unnecessary re-renders ⚡ (more optimized than useRouter for state updates).
+No need to manually parse & update URLs 🛠️.
+
+
+🔹 How useQueryState Works
+It binds a piece of state to a query parameter in the URL.
+
+
+✅ Basic Example
+ const [currentPage, setPage] = useQueryState("page", { defaultValue: 1 });
+✅ Behavior:
+If you visit https://example.com?page=2, currentPage will be 2.
+Clicking Next Page updates the URL to ?page=3.
+Refreshing the page persists the value since it's in the URL.
+
+
+🔹 useQueryState API Breakdown
+const [state, setState] = useQueryState(queryKey, options);
+queryKey: The name of the query parameter (e.g., "page").
+options: Configuration for parsing, serializing, default values, etc.
+
+🔹 Configuration Options
+1️⃣ defaultValue
+Sets the default state value when the URL does not have the query parameter.
+
+useQueryState("sort", { defaultValue: "popular" });
+
+If ?sort=latest, sort is "latest".
+If no sort param, sort defaults to "popular".
+
+
+
+2️⃣ parse
+parse → Converts the URL value (string) into the correct data type and stores it in the state.
+
+🔹 Why is parse Needed?
+Query parameters in URLs are always strings.
+You need parse to convert them into useful types (e.g., numbers, booleans, arrays, etc.).
+Helps validate and clean the input.
+All query parameters in a URL are stored as strings.
+Example: ?page=5 → "5" (string, not a number)
+Example: ?darkMode=true → "true" (string, not a boolean)
+If we need a number, boolean, array, or object, we must convert (parse) the string into the correct type. it reverses the value from the URL to the type we need.
+🔹 How parse Works?
+💡 The function inside parse automatically receives the value from the URL as a string.
+💡 You decide how to convert (parse) it into the correct format.
+
+📌 Basic Example: Parsing a Number
+  parse: (value) => Number(value) || 1, // Convert the string into a number, or use 1 if invalid
+
+
+
+3️⃣ serialize
+Converts the state back into a string for the URL.
+useQueryState("limit", {
+    serialize: (value) => value.toString(),
+});
+setLimit(10) → updates URL to ?limit=10.
+serialize → Converts the state value back into a string so it can be placed in the URL.
+serialize: (value) => value.toString(), // Convert back to string for URL
+
+
+
+
+4️⃣ shallow
+Controls how Next.js handles URL updates.
+useQueryState("filter", { shallow: false });
+
+shallow: false (default) → Triggers a full re-fetch.
+shallow: true → Updates the URL without a new server request.
+
+
+
+🔹 Real-World Use Cases
+✅ 1. Pagination (Changing URL When Navigating)
+tsx
+Copy
+Edit
+const [page, setPage] = useQueryState("page", {
+    defaultValue: 1,
+    parse: (value) => Number(value) || 1,
+    serialize: (value) => value.toString(),
+});
+
+const nextPage = () => setPage(page + 1);
+const prevPage = () => setPage(page - 1);
+
+Keeps page in the URL → /products?page=2
+Refreshing keeps the same page number.
+
+
+🔹 Real-World Use Cases 2️⃣ check CustomPagination.tsx 
+
+multiple queries:-
+to work with multiple quires we need to use "useQueryStates()"

@@ -1,0 +1,113 @@
+we have to use <a/> tag with href="#" while toggling pages. 
+if we use button and on click then google crawler will not crawl through all the pages.
+
+this time we are using shadcn ui pagination:-
+step 1: create a query parameter hook that will update the search params to the url
+to achieve it we will use a hook useQueryState from nuqs
+
+
+const [currentPage, setPage] = useQueryState(n, {x:x});
+
+second: we need to take the range to show the pages button.
+const [visibleRange, setVisibleRange] = useState({
+    start: 1,
+    end: Math.min(maxVisiblePages, totalPages), // this will return the minimum of the maxVisiblePages and the totalPages.
+}); // default state of the visible range.
+    //start: 1 → Initially, the first page is always visible.
+    //end: Math.min(maxVisiblePages, totalPages) → The ending page is determined based on:
+    //If totalPages is less than maxVisiblePages, it shows only totalPages.
+    //If totalPages is greater than maxVisiblePages, it shows up to maxVisiblePages.
+
+
+
+
+useEffect(() => { // useEffect updates the visible page range whenever currentPage, totalPages, or maxVisiblePages changes.
+
+    const halfVisible = Math.floor(maxVisiblePages / 2);
+    const newStart = Math.max(1, Math.min(currentPage - halfVisible, totalPages - maxVisiblePages + 1));
+    const newEnd = Math.min(newStart + maxVisiblePages - 1, totalPages);
+    setVisibleRange({
+        start: newStart,
+        end: newEnd,
+    });
+
+}, [currentPage, totalPages, maxVisiblePages]);
+
+
+1️⃣ Breakdown of Key Variables
+Given:
+
+totalPages = 9
+maxVisiblePages = 5 (assuming)
+currentPage can be any value between 1 and 9.
+
+Step 1: Calculate halfVisible
+const halfVisible = Math.floor(maxVisiblePages / 2);
+If maxVisiblePages = 5, then:
+halfVisible = Math.floor(5 / 2) = 2;
+This means 2 pages should be visible on each side of the current page (when possible).
+
+Step 2: Calculate newStart
+const newStart = Math.max(1, Math.min(currentPage - halfVisible, totalPages - maxVisiblePages + 1));
+
+Let's break this down:
+currentPage - halfVisible → Centers the visible range around the currentPage.
+Example: If currentPage = 4, then:
+4 - 2 = 2
+
+totalPages - maxVisiblePages + 1 → Ensures we don't exceed the last page.
+Since totalPages = 9 and maxVisiblePages = 5:
+9 - 5 + 1 = 5
+This means the start page cannot be greater than 5
+
+Math.min(currentPage - halfVisible, totalPages - maxVisiblePages + 1)
+
+Ensures the start page does not go beyond the limit.
+Example: If currentPage = 4:
+
+
+
+
+useEffect(() => { // useEffect updates the visible page range whenever currentPage, totalPages, or maxVisiblePages changes.
+
+    const halfVisible = Math.floor(maxVisiblePages / 2);
+
+
+    -----------const newStart = Math.max(1, Math.min(currentPage - halfVisible, totalPages - maxVisiblePages + 1));
+    // This formula determines the starting page number of the visible pagination range.
+
+    // Why currentPage - halfVisible?
+    // To center the pagination around the current page when possible.
+    // Example: If the visible range is 5 pages (maxVisiblePages = 5), we want about 2 pages before and after the currentPage.
+
+    // Why totalPages - maxVisiblePages + 1?
+    // To prevent the start from exceeding the maximum possible range.
+    // If pagination is close to the last page, we want the last maxVisiblePages pages to be displayed.
+
+    // Why Math.min(currentPage - halfVisible, totalPages - maxVisiblePages + 1)?
+    // To take the smaller value and avoid exceeding boundaries.
+
+    // Why Math.max(1, result)
+    // To ensure the first page is never below 1 because 
+
+    -- if 9 - 5 + 1 = 5;
+    This means if the currentPage is too high, we cannot start before page 5.
+
+    Compute currentPage - halfVisible   
+    currentPage - halfVisible = 4 - 2 = 2;
+    Take the Minimum    
+    Math.min(2, 5) = 2;
+    Take the Maximum
+    Math.max(1, 2) = 2;
+
+✅ Final newStart = 2
+✅ Visible Pages: [2, 3, 4, 5, 6]
+
+
+    const newEnd = Math.min(newStart + maxVisiblePages - 1, totalPages);
+    setVisibleRange({
+        start: newStart,
+        end: newEnd,
+    });
+
+}, [currentPage, totalPages, maxVisiblePages]);

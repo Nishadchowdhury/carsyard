@@ -1,0 +1,45 @@
+ Array.from({ length: X }, (_, index) => Y)
+This usage of Array.from is a special technique to create and fill an array dynamically.
+
+1️⃣ What is happening here?
+📌 Array.from({ length: X }) creates an array of X elements, but they are initially undefined.
+
+📌 The second argument is a mapping function, which transforms each element into a meaningful value.
+
+Breaking It Down:
+Array.from(
+  { length: visibleRange.end - visibleRange.start + 1 }, 
+  (_, index) => visibleRange.start + index
+);
+Step-by-step Explanation
+Creating the array
+
+{ length: X } creates an array with X elements.
+Example: { length: 5 } → [undefined, undefined, undefined, undefined, undefined]
+The mapping function ((_, index) => visibleRange.start + index)
+
+It takes two parameters:
+
+_ → Represents the current value (ignored because we're not using it).
+index → The index of the element (0, 1, 2, 3, ...).
+It replaces each element with visibleRange.start + index, which gives us a range of numbers.
+
+Example with Real Numbers:
+Let's assume:
+
+visibleRange = { start: 3, end: 7 };
+Then:
+
+Array.from(
+  { length: 7 - 3 + 1 }, // { length: 5 }
+  (_, index) => 3 + index
+);
+➡ Expands to:
+
+Array.from({ length: 5 }, (_, index) => 3 + index);
+➡ Final Output:
+
+[3, 4, 5, 6, 7]
+What is _ and why is it used?
+The first parameter in .map() or similar functions usually represents the current value of the array element.
+In this case, we don’t need the value (since the array is just { length: X }), so we use _ as a convention to indicate "unused variable".
