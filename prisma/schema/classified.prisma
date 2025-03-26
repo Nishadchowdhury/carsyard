@@ -10,7 +10,7 @@ model Classified {
     odoReading  Int     @default(0) @map("odo_reading")
     doors       Int     @default(2)
     seats       Int     @default(5)
-    price       BigInt  @default(0) @map("price")
+    price       Int  @default(0) @map("price")
     // BigInt is a type that can store very large numbers because will multiply bt 100 to prevent any rounding errors.
 
     makeId         Int           @map("make_id")

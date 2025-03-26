@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client"
+import { ChangeEvent } from "react"
 
 type Params = {
     [x: string]: string | string[]
@@ -35,8 +36,35 @@ export enum MultiStepFormEnum {
     WELCOME = 1,
     SELECT_DATE = 2,
     SUBMIT_DETAILS = 3,
-} 
+}
 
 export interface Favorites {
     ids: number[]
+}
+
+
+export interface TaxonomyFiltersProps extends AwaitedPageProps {
+    handleChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+}
+
+export type FilterOptions<LType, VType> = Array<{
+    label: LType, // dynamic type
+    value: VType, // dynamic type
+
+}>
+
+export interface SidebarProps extends AwaitedPageProps {
+    minMaxValues: Prisma.GetClassifiedAggregateType<{
+        _min: {
+            year: true,
+            price: true,
+            odoReading: true,
+        },
+        _max: {
+            year: true,
+            price: true,
+            odoReading: true,
+        },
+    }>;
+
 }

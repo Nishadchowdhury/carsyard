@@ -1,0 +1,475 @@
+first make the complex states with setQueryStates
+
+   const [queryStates, setQueryStates] = useQueryStates({
+        make: parseAsString.withDefault(""),
+        model: parseAsString.withDefault(""),
+        modelVariant: parseAsString.withDefault(""),
+        minYear: parseAsString.withDefault(""),
+        maxYear: parseAsString.withDefault(""),
+        minPrice: parseAsString.withDefault(""),
+        maxPrice: parseAsString.withDefault(""),
+        minReading: parseAsString.withDefault(""),
+        maxReading: parseAsString.withDefault(""),
+        currency: parseAsString.withDefault(""),
+        odoUnit: parseAsString.withDefault(""),
+        transmission: parseAsString.withDefault(""),
+        fuelType: parseAsString.withDefault(""),
+        bodyType: parseAsString.withDefault(""),
+        color: parseAsString.withDefault(""),
+        doors: parseAsString.withDefault(""),
+        seats: parseAsString.withDefault(""),
+        ulezCompliance: parseAsString.withDefault(""),
+    }, {
+        shallow: false
+    })
+
+ const handleChange = async (e: ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+        const { name, value } = e.target
+        setQueryStates({ [name]: value || null })
+
+        if (name === "make") {
+            setQueryStates({ model: null, modelVariant: null })
+        }
+
+        router.refresh()
+    }
+
+and using this dynamically update the state.
+
+
+
+after mounting the component an useEffect with an // iife = immediately invoked function expression does the initial fetch of all the makes
+ in this function:- it will create an URLsearchParams object and place all the params from the actual Url's params array then fetch and set the states.
+
+
+create api to retrieve the data
+
+it this api need to access the search params from the requesting url.
+const params = new URL(req.url).searchParams;
+
+by default get and send all the makes to initialized the filtering system.
+then if make then also model || []
+if make and model then modelVariant || []
+
+ensure every fields are strings with xxx.toString(),
+
+
+
+
+
+
+
+--------------------adding filter using searchParams
+
+const buildClassifiedFilterQuery = (searchParams: AwaitedPageProps["searchParams"] | undefined): Prisma.ClassifiedWhereInput => {
+    // Prisma.ClassifiedWhereInput ensures that this function returns a valid filter object for Prisma. that can be passed in where:'s value.
+
+    const { data } = ClassifiedFilterSchema.safeParse(searchParams);
+    // It is used to validate and parse searchParams based on a predefined schema
+
+    // ✅ 1. Checks if searchParams is an object
+    // If searchParams is not an object (e.g., null, undefined, a string, etc.), safeParse will fail immediately.
+
+    // ✅ 2. Checks if searchParams has valid keys
+    // It ensures that every key in searchParams matches one of the keys defined in z.object({ ... }).
+    // If an unknown key is present, it ignores it (doesn’t throw an error).
+    // extraFields will be ignored because it's not defined in the schema. 📌 success: true and data contains only { status, category }.
+    // If a required key is missing, validation fails.
+    // ✅ 3. Checks if searchParams values have the correct types
+
+    // Each value inside searchParams must match the expected type in the Zod schema.
+
+    //🔹 Why Use .safeParse() Instead of .parse()?
+    //Method	What Happens If Validation Fails?
+    //.parse(value)	🚨 Throws an error and crashes the app.
+    //.safeParse(value)	✅ Returns { success: false, error } instead of throwing an error.
+    //.safeParse() is safer because it allows you to handle invalid input gracefully without breaking the app.
+
+    if (!data) return { status: ClassifiedStatus.LIVE };
+    // if searchParams is invalid then return only this object as { status: ClassifiedStatus.LIVE };
+
+
+    // or do this ⬇️
+
+
+    // Filter out non-taxonomy keys
+    const taxonomyFilter = ["make", "model", "modelVariant"];
+    // Creates an array of keys that represent taxonomy filters (e.g., make, model, modelVariant).
+    // Extract Search Keys
+    const keys = Object.keys(data);
+    //Extracts keys from the validated search parameters.
+    //Example: If searchParams is { make: "Toyota", minYear: "2015" }, then keys = ["make", "minYear"].
+
+    // Build the filter object with the extracted keys and their corresponding values
+    const mapParamsToFields = keys.reduce((acc, key, _i, _arr) => { //Loops through each key in searchParams 
+
+        // Modify acc inside here
+        // at each iteration acc gets updated
+        // The final value of acc is returned after all iterations.
+
+
+        const value = searchParams?.[key] as string | undefined; // Retrieves the value of the key from searchParams, but safely (using ?. optional chaining) If searchParams is undefined or null, it won't throw an error—instead, "value" will be undefined.
+
+
+        if (!value) return acc; // Skip if value is undefined // weather {} or   key = { id: Number(value) } 
+        // accumulator → Stores the accumulated result (initially set to initialValue)
+
+
+
+        if (taxonomyFilter.includes(key)) { // only taxonomyFilter array is allowed to provide the is as stringified number.
+            // console.log(acc[key] = { id: Number(value) })
+            console.log({ acc }, { key });
+
+            acc[key] = { id: Number(value) } // writing the aky and the value to the acc as acc[key]_key of the object_ = {id: Number}
+        }
+        return acc
+
+    }, {} as { [key: string]: any }
+    )
+    // how this loop will work 
+    // eg:-
+    // const searchParams = {
+    //     make: "2",
+    //     model: "15",
+    //     q: "Toyota"
+    // };
+    // const taxonomyFilter = ["make", "model", "modelVariant"]; 
+    // keys will be ["make", "model", "q"] because they exist in searchParams.
+    // First Iteration (key = "make")
+    // key = "make", value = searchParams["make"] = "2", acc = {}
+    // ✅ value exists, so we don't skip. ✅ "make" is in taxonomyFilter, so we add: acc["make"] = { id: Number("2") }  // id: 2
+    // Updated acc: { make: { id: 2 } }
+   
+    return {
+        status: ClassifiedStatus.LIVE,
+
+        ...(searchParams?.q && { //  Full-Text Search (q parameter) 
+            // If q text exists, it applies an OR filter:
+            // Searches in title (contains keyword → partial matches).
+            // Searches in description.
+            // Uses mode: "insensitive" to make the search case-insensitive.
+            OR: [
+                {
+                    title: {
+                        contains: searchParams.q as string,
+                        mode: "insensitive" // we do not care about capital later's here.
+                    }
+                },
+                {
+
+                    description: {
+                        contains: searchParams.q as string,
+                        mode: "insensitive" // we do not care about capital later's here.
+                    }
+                }
+
+            ]
+        }),
+
+        // Final where Object Construction
+        // Example: q: "Toyota"
+        ...mapParamsToFields // this it like an object as result object that I've created while seeding the initial data into the database.
+
+    }
+
+
+}
+
+
+
+--------------------adding filter for using ranges of numbers from searchParams
+1. create a comp with props type name "RangeFilterProps".  this interface extends the "TaxonomyFiltersProps" because it already has a written type of the change handler.
+
+retrieve the number of all the ranges from the database using aggregate operations.
+ const minMaxResult = await prisma.classified.aggregate({
+        where: { status: ClassifiedStatus.LIVE },
+        _min: {
+            year: true,
+            price: true,
+            odoReading: true
+        },
+        _max: {
+            year: true,
+            price: true,
+            odoReading: true
+        }
+    })
+
+
+this component takes a list of properties 
+{
+    label,
+    minName,
+    maxName,
+    defaultMin, // the minimum value for the change handler
+    defaultMax, // the maximum value for the change handler
+    increment?, // each iteration leaf numberSize
+    thousandSeparator, // the variable ensures a coma in number larger then thousand 10232 -> 102,32
+    currency?: {
+        currencyCode: CurrencyCode;
+    },
+
+    // from extended type
+    handleChange,
+    searchParams
+
+}
+
+this reruns 2 select components 1st for min 2nd for max
+each element takes 
+
+interface SelectType extends SelectHTMLAttributes<HTMLSelectElement> {
+    options: FilterOptions<string, number> // [option]
+}
+interface RangeSelectProps {
+    label: string;
+    minSelect: SelectType;
+    maxSelect: SelectType;
+} 
+this interface
+
+ <select {...minSelect} // this contains _name, onChange, and [options_not impotent here]_
+           className="flex-1 w-full pl-3 py-2 border rounded-md custom-select appearance-none pr-12 bg-no-repeat"
+           >
+             <option value="">Select</option>
+             {minSelect.options.map((option, i) => {
+               return (
+                   <option key={i} value={option.value}>{option.label}</option>
+              )
+         })}
+</select>
+same for max options just use "maxSelect"
+
+now create the options
+
+ const getInitialState = () => { // This loop generates an array of selectable range options dynamically.
+        const state: FilterOptions<string, number> = [] // state without any options
+        let iterator = defaultMin - (increment ?? 1) // Initialize the iterator
+        // it means the iterator variable starts from the defaultMin value from mother comp
+
+        do {
+            if (increment) {
+                iterator = iterator + increment;  // Increase iterator by increment value if it exists
+            } else {
+                iterator++;
+            } 
+            // this part will determine how the loop will work
+            // if increment exist then it will leaf as the increment variable or just 1
+
+            if (currency) {
+                state.push({
+                    label: formatPrice({ price: iterator, currency: currency.currencyCode }),
+                    value: iterator,
+                })
+
+            } else if (thousandSeparator) {
+                state.push({
+                    label: formatNumber(iterator).toString(),
+                    value: iterator,
+                })
+            } else {
+                state.push({ label: iterator.toString(), value: iterator });
+            }
+        } while (iterator < defaultMax)
+        return state;
+    }
+
+🛠 How This Loop Works
+1️⃣ Initialization
+An empty array state is created to store range options.
+The iterator is set to defaultMin - (increment ?? 1). This ensures the loop starts from defaultMin after the first iteration.
+
+2️⃣ The do...while Loop
+The loop will always run at least once because it's a do...while loop.
+
+Inside the Loop:
+Increment the iterator
+If increment exists, iterator increases by that value.
+Otherwise, it simply increases by 1.
+
+
+Push Data to the state Array:-
+If currency exists, the value is formatted as a price (formatPrice function).
+
+If thousandSeparator is true, the number is formatted with commas (formatNumber function).
+
+Otherwise, the value is simply converted to a string.
+
+Condition to Stop the Loop
+The loop runs until iterator >= defaultMax.
+Once iterator reaches or exceeds defaultMax, the loop stops.
+
+
+const initialState = getInitialState()
+const [minOptions, setMinOptions] = useState<FilterOptions<string, number>>(initialState) // this will start from the array as formed through the loop.
+const [maxOptions, setMaxOptions] = useState<FilterOptions<string, number>>(initialState.toReversed()) // this will be the alter version of the array. It starts from the biggest number of the array.
+
+
+
+--------------------------- dynamically set the value after being changed in the params.
+
+  useEffect(() => {
+        if (searchParams?.[minName]) {
+            setMaxOptions(initialState.filter(({ value }) => value > Number(searchParams[minName])))
+        }
+        if (searchParams?.[maxName]) {
+            setMinOptions(initialState.filter(({ value }) => value < Number(searchParams[maxName])))
+        }
+
+    }, [searchParams?.[minName], searchParams?.[maxName]])
+
+What Does This useEffect Do?
+1. It watches for changes in searchParams[minName] or searchParams[maxName].
+2. When either of them changes, it filters the available range options to make sure:
+and it ensures
+The minimum options (minOptions) don’t exceed the selected max value.
+The maximum options (maxOptions) don’t go below the selected min value.
+
+eg:- 
+Initial State (defaultMin = 5000, defaultMax = 50000, increment = 5000)
+minOptions = [5000, 10000, 15000, 20000, 25000, ..., 50000]
+maxOptions = [5000, 10000, 15000, 20000, 25000, ..., 50000] (but reversed)
+
+User Selects minYear = 15000
+Before filtering:
+maxOptions = [5000, 10000, 15000, 20000, 25000, ..., 50000]
+After filtering:
+maxOptions = [20000, 25000, ..., 50000]  // Only values > 15000
+
+Why This Is Useful
+✅ Prevents selecting an invalid range → Ensures min < max.
+✅ Updates the dropdown dynamically → Shows only valid selections.
+✅ Improves UX → Avoids errors like selecting min = 40000 and max = 30000.
+This way, the range filters work smoothly without allowing incorrect values! 🚀
+
+-----------------------------------Applying the filtering to the query 
+ return prisma.classified.findMany({
+        include: { images: { take: 1 }, },
+        skip: offset,
+        take: CLASSIFIED_PER_PAGE,
+    })
+
+add a where field to the query and pass a function that will create the where object using the searchParams/filter object.
+where: buildClassifiedFilterQuery(searchParams),
+
+----------------------------------buildClassifiedFilterQuery
+// this function dynamically creates an object to pass in "where" while query in prisma,
+const buildClassifiedFilterQuery = (searchParams: AwaitedPageProps["searchParams"] | undefined): Prisma.ClassifiedWhereInput => {
+    // Prisma.ClassifiedWhereInput ensures that this function returns a valid filter object for Prisma. that can be passed in where:'s value.
+    const { data } = ClassifiedFilterSchema.safeParse(searchParams);
+
+    using safeParse = The method .safeParse(searchParams) is from Zod, a TypeScript validation library. It is used to validate and parse searchParams based on a predefined schema.
+
+    🔹 How .safeParse() Works
+    const result = ClassifiedFilterSchema.safeParse(searchParams);
+
+    //the safeParse work as like
+    //if a key value do not exist in the data obj that being parsed then it will ignore and return other key value pairs.
+    //and if the any key contains other type of data rather then according to the z.object then will pass the error. 
+    //and if any pair that doesn't exist in z.object  then it will ignore.
+    //the difference is it will not throw an error that can break the entire application, instead it just store true in the output object to let the developer know  about the error ?
+
+
+    ClassifiedFilterSchema is a Zod schema that defines the expected structure of searchParams.
+    .safeParse(searchParams) checks if searchParams matches the schema.
+    It returns an object with { success: boolean, data?: any, error?: any }.
+
+    //Yes, exactly! safeParse is "safe" because it doesn't break the entire app—it just returns an object instead of throwing an error.
+    //If the data is valid ✅ → { success: true, data }
+    //If the data is invalid ❌ → { success: false, error } (instead of throwing an error)
+
+
+    if (!data) return { status: ClassifiedStatus.LIVE };
+    // if searchParams is invalid then return only this object as { status: ClassifiedStatus.LIVE };
+
+    // or do this ⬇️
+
+    // Filter out non-taxonomy keys
+    const taxonomyFilter = ["make", "model", "modelVariant"];
+    // Creates an array of keys that represent taxonomy filters (e.g., make, model, modelVariant).
+    // Extract Search Keys
+    const keys = Object.keys(data);
+    //Extracts keys from the validated search parameters.
+
+    const rangeFilters = { // this for range filters
+        minYear: "year",
+        maxYear: "year",
+        minPrice: "price",
+        maxPrice: "price",
+        minReading: "odoReading",
+        maxReading: "odoReading",
+    }
+
+    const numFilters = ["seats", 'doors',]
+    const enumFilters = ["odoUnit", "currency", "transmission", "bodyType", "fuelType", "color", "ulezCompliance"]
+
+    // Build the filter object with the extracted keys and their corresponding values
+    const mapParamsToFields = keys.reduce((acc, key, _i, _arr) => { //Loops through each key in searchParams 
+
+        const value = searchParams?.[key] as string | undefined;
+        if (!value) return acc; // Skip if value is undefined // weather {} or   key = { id: Number(value) } 
+
+        if (taxonomyFilter.includes(key)) { // only taxonomyFilter array is allowed to provide the is as stringified number.
+            // console.log(acc[key] = { id: Number(value) })
+
+
+            acc[key] = { id: Number(value) } // writing the aky and the value to the acc as acc[key]_key of the object_ = {id: Number}
+        } else if (enumFilters.includes(key)) {
+            acc[key] = value.toUpperCase();
+        } else if (numFilters.includes(key)) {
+            acc[key] = Number(value);
+
+
+
+
+            // What is happening here?
+            // The purpose of this code is to process range-based filters (like minimum and maximum values) and store them correctly in an acc object.
+            // 
+            // Step-by-Step Explanation
+            // 1. acc[field] = acc[field] || {};
+            // 👉 This ensures that acc[field] exists as an object before we try to add filters to it.
+
+            // 🔹 Example Let's say:
+            // field = "year" (because key = "minYear" and rangeFilters["minYear"] = "year").
+            // acc is currently {} (empty object).
+            // 
+            // now:
+            // acc["year"] = acc["year"] || {};
+            // Since acc["year"] does not exist yet, it creates:
+            // acc = { year: {} };
+            //
+            // 2. Checking if key starts with "min" or "max"
+            // 👉 Now, we check whether the filter is a minimum or maximum value.
+            // If key starts with "min"`
+            // acc[field].gte = Number(value);
+            // acc["year"].gt = 2015;
+            // acc = { year: { gt: 2015 } };
+            
+            // Final Output
+            // After processing both minYear and maxYear, the acc object stores the range filter like this:
+            // acc = {
+            //     year: {
+            //         gt: 2015,   // Only years greater than 2015
+            //         lte: 2020   // Only years less than or equal to 2020
+            //     }
+            // };
+        }  else if (key in rangeFilters) { // this checks the key exist or not in the rangeFilters object
+            const field = rangeFilters[key as keyof typeof rangeFilters] // Retrieves the corresponding database field name from rangeFilters.
+
+            acc[field] = acc[field] || {};  //Initializing the object for the field if not already set
+            // acc = {}; 
+            // acc["year"] = acc["year"] || {}; // Ensures acc["year"] is an object before adding conditions.
+
+            if (key.startsWith('min')) { //Setting filter conditions based on prefix (min or max)
+                acc[field].gte = Number(value); // Greater than (>=) or equal filter this object will be like  
+            } else if (key.startsWith('max')) { // 
+                acc[field].lte = Number(value); // Less than (>=) or equal filter 
+            }
+        }
+
+
+        return acc
+
+    }, {} as { [key: string]: any }
+    )
+}

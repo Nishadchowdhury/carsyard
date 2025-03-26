@@ -1,0 +1,34 @@
+// why used useCallback in search component 
+useCallback is used to memoize the handleSearch function so that it does not get re-created on every render. This is important for performance reasons, especially when dealing with debounced functions.
+
+🔍 How it Works Here
+
+const handleSearch = useCallback(
+    debounceFunc((value: string) => {
+        setSearch(value || null)
+    }, 500, { immediate: false }),
+    [],
+);
+
+
+
+debounceFunc creates a debounced version of the function that delays execution by 500ms.
+useCallback ensures that the debounced function is only created once, rather than being re-created on every render.
+The empty dependency array [] means the function never gets re-created unless the component unmounts and re-renders.
+
+ Without useCallback, the function would be re-created on every render, causing unnecessary re-renders and breaking the debounce effect!
+
+ 🤔 What Can You Use Instead?
+ You can remove useCallback, but this is NOT recommended in this case.
+ However, here’s what would happen if you removed it:
+
+ const handleSearch = debounceFunc((value: string) => {
+     setSearch(value || null);
+ }, 500, { immediate: false });
+
+ What’s the Problem?
+ Every time the component re-renders, handleSearch gets re-created.
+ Debounce won't work properly because a new debounced function will be created every render.
+ The performance **
+ 
+ 

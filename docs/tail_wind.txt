@@ -39,3 +39,6 @@ flex-1	Fills remaining space	Used inside flex containers to distribute space eve
 flex-auto	Grows as needed	Used when you don’t want shrinking
 flex-1 = Make an element take up remaining space
 
+
+
+____appearance-none: Utilities for suppressing native form control styling. it is to keep default styling for the element
